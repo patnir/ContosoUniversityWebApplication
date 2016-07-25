@@ -8,10 +8,9 @@ namespace ContosoUniversity.Models
 {
     public class Course
     {
-        // Let's you enter the primary key for this course rather than generate it.
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
-        public int CourseID { get; set; }
 
+        public int CourseID { get; set; }
         public string Title { get; set; }
         public int Credits { get; set; }
 
