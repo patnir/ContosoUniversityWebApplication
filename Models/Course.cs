@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Web;
 
 namespace ContosoUniversity.Models
 {
@@ -23,6 +20,6 @@ namespace ContosoUniversity.Models
 
         public virtual Department Department { get; set; }
         public virtual ICollection<Enrollment> Enrollments { get; set; }
-        public virtual ICollection<Instructor> Instructor { get; set; }
+        public virtual ICollection<Instructor> Instructors { get; set; }
     }
 }

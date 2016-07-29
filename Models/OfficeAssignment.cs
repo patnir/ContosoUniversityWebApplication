@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ContosoUniversity.Models
@@ -10,12 +8,10 @@ namespace ContosoUniversity.Models
         [Key]
         [ForeignKey("Instructor")]
         public int InstructorID { get; set; }
-
         [StringLength(50)]
         [Display(Name = "Office Location")]
         public string Location { get; set; }
 
-        [Required] // Not required since the InstructorID is non-nullable
         public virtual Instructor Instructor { get; set; }
     }
 }
