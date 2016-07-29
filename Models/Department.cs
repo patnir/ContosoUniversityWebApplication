@@ -9,6 +9,7 @@ namespace ContosoUniversity.Models
     {
         public int DepartmentID { get; set; }
 
+        [Display(Name = "Department Name")]
         [StringLength(50, MinimumLength = 3)]
         public string Name { get; set; }
 
