@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿using ContosoUniversity.DAL;
+using ContosoUniversity.Models;
+using ContosoUniversity.ViewModels;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
-using ContosoUniversity.DAL;
-using ContosoUniversity.ViewModels;
-using ContosoUniversity.Models;
 
 namespace ContosoUniversity.Controllers
 {
@@ -35,8 +31,19 @@ namespace ContosoUniversity.Controllers
             if (courseID != null)
             {
                 ViewBag.CourseID = courseID.Value;
-                viewModel.Enrollments = viewModel.Courses.Where(
-                    x => x.CourseID == courseID).Single().Enrollments;
+                // Lazy Loading
+                //viewModel.Enrollments = viewModel.Courses.Where(
+                //    x => x.CourseID == courseID).Single().Enrollments;
+
+                //Explicit Loading
+                var selectedCourse = viewModel.Courses.Where(x => x.CourseID == courseID).Single();
+                db.Entry(selectedCourse).Collection(x => x.Enrollments).Load();
+                foreach (Enrollment enrollment in selectedCourse.Enrollments)
+                {
+                    db.Entry(enrollment).Reference(x => x.Student).Load();
+                }
+
+                viewModel.Enrollments = selectedCourse.Enrollments;
             }
 
             return View(viewModel);
