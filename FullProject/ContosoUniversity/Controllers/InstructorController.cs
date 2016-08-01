@@ -2,6 +2,7 @@
 using ContosoUniversity.Models;
 using ContosoUniversity.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
@@ -103,6 +104,7 @@ namespace ContosoUniversity.Controllers
             }
             Instructor instructor = db.Instructors
                 .Include(i => i.OfficeAssignment)
+                .Include(i => i.Courses)
                 .Where(i => i.ID == id)
                 .Single();
             if (instructor == null)
@@ -116,40 +118,73 @@ namespace ContosoUniversity.Controllers
         // POST: Instructor/Edit/5
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost, ActionName("Edit")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult EditPost(int? id)
+        public ActionResult Edit(int? id, string[] selectedCourses)
         {
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-
             var instructorToUpdate = db.Instructors
-                .Include(i => i.OfficeAssignment)
-                .Where(i => i.ID == id)
-                .Single();
+               .Include(i => i.OfficeAssignment)
+               .Include(i => i.Courses)
+               .Where(i => i.ID == id)
+               .Single();
 
-            if (TryUpdateModel(instructorToUpdate, "", new string[] {"LastName", "FirstMidName", "HireDate", "OfficeAssignment"}))
+            if (TryUpdateModel(instructorToUpdate, "",
+               new string[] { "LastName", "FirstMidName", "HireDate", "OfficeAssignment" }))
             {
                 try
                 {
-                    if (String.IsNullOrWhiteSpace(instructorToUpdate.OfficeAssignment.Location) == true)
+                    if (String.IsNullOrWhiteSpace(instructorToUpdate.OfficeAssignment.Location))
                     {
                         instructorToUpdate.OfficeAssignment = null;
                     }
+
+                    UpdateInstructorCourses(selectedCourses, instructorToUpdate);
 
                     db.SaveChanges();
 
                     return RedirectToAction("Index");
                 }
-                catch (RetryLimitExceededException)
+                catch (RetryLimitExceededException /* dex */)
                 {
-                    ModelState.AddModelError("", mAdministratorErrorMessage);
+                    //Log the error (uncomment dex variable name and add a line here to write a log.
+                    ModelState.AddModelError("", "Unable to save changes. Try again, and if the problem persists, see your system administrator.");
                 }
             }
-
+            PopulateAssignedCourseData(instructorToUpdate);
             return View(instructorToUpdate);
+        }
+        private void UpdateInstructorCourses(string[] selectedCourses, Instructor instructorToUpdate)
+        {
+            if (selectedCourses == null)
+            {
+                instructorToUpdate.Courses = new List<Course>();
+                return;
+            }
+
+            var selectedCoursesHS = new HashSet<string>(selectedCourses);
+            var instructorCourses = new HashSet<int>
+                (instructorToUpdate.Courses.Select(c => c.CourseID));
+            foreach (var course in db.Courses)
+            {
+                if (selectedCoursesHS.Contains(course.CourseID.ToString()))
+                {
+                    if (!instructorCourses.Contains(course.CourseID))
+                    {
+                        instructorToUpdate.Courses.Add(course);
+                    }
+                }
+                else
+                {
+                    if (instructorCourses.Contains(course.CourseID))
+                    {
+                        instructorToUpdate.Courses.Remove(course);
+                    }
+                }
+            }
         }
 
         // GET: Instructor/Delete/5
@@ -176,6 +211,23 @@ namespace ContosoUniversity.Controllers
             db.Instructors.Remove(instructor);
             db.SaveChanges();
             return RedirectToAction("Index");
+        }
+
+        private void PopulateAssignedCourseData(Instructor instructor)
+        {
+            var allCourses = db.Courses;
+            var instructorCourses = new HashSet<int>(instructor.Courses.Select(c => c.CourseID));
+            var viewModel = new List<AssignedCourseData>();
+            foreach (var course in allCourses)
+            {
+                viewModel.Add(new AssignedCourseData
+                {
+                    CourseID = course.CourseID,
+                    Title = course.Title,
+                    Assigned = instructorCourses.Contains(course.CourseID)
+                });
+            }
+            ViewBag.Courses = viewModel;
         }
 
         protected override void Dispose(bool disposing)
