@@ -73,17 +73,29 @@ namespace ContosoUniversity.Controllers
         // GET: Instructor/Create
         public ActionResult Create()
         {
-            ViewBag.ID = new SelectList(db.OfficeAssignments, "InstructorID", "Location");
+            var instructor = new Instructor();
+            instructor.Courses = new List<Course>();
+            PopulateAssignedCourseData(instructor);
             return View();
         }
 
         // POST: Instructor/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+        
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "ID,LastName,FirstMidName,HireDate")] Instructor instructor)
+        public ActionResult Create([Bind(Include = "LastName, FirstMidName, HireDate, OfficeAssignment")]Instructor instructor, string[] selectedCourses)
         {
+            if (selectedCourses != null)
+            {
+                instructor.Courses = new List<Course>();
+                foreach (var course in selectedCourses)
+                {
+                    var courseToAdd = db.Courses.Find(int.Parse(course));
+                    instructor.Courses.Add(courseToAdd);
+                }
+            }
             if (ModelState.IsValid)
             {
                 db.Instructors.Add(instructor);
@@ -91,7 +103,7 @@ namespace ContosoUniversity.Controllers
                 return RedirectToAction("Index");
             }
 
-            ViewBag.ID = new SelectList(db.OfficeAssignments, "InstructorID", "Location", instructor.ID);
+            PopulateAssignedCourseData(instructor);
             return View(instructor);
         }
 
