@@ -22,10 +22,12 @@ namespace ContosoUniversity.Models
         [Display(Name = "Start Date")]
         public DateTime StartDate { get; set; }
 
-        [Display(Name = "Administrator Name")]
+        [Display(Name = "Administrator")]
         public int? InstructorID { get; set; }
 
-        [Display(Name = "Administrator Name")]
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
+
         public virtual Instructor Administrator { get; set; }
         public virtual ICollection<Course> Courses { get; set; }
     }
