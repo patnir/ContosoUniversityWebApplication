@@ -17,6 +17,22 @@ namespace ContosoUniversity.Controllers
         private SchoolContext db = new SchoolContext();
         private string mAdministratorErrorMessage = "Unable to save changes. Try again, and if the problem persists see your local administrator.";
 
+        public ActionResult UpdateCourseCredits()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public ActionResult UpdateCourseCredits(int? multiplier)
+        {
+            if (multiplier != null)
+            {
+                ViewBag.RowsAffected = db.Database.ExecuteSqlCommand("UPDATE Course SET Credits = Credits * {0}", multiplier);
+            }
+            return View();
+        }
+
+
         // GET: Course
         public ActionResult Index()
         {
