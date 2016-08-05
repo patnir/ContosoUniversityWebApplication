@@ -32,7 +32,14 @@ namespace ContosoUniversity.Controllers
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            Department department = await db.Departments.FindAsync(id);
+            // Department department = await db.Departments.FindAsync(id);
+
+            string query = "SELECT * FROM Department WHERE DepartmentID = @p0";
+
+            // p0 will be replaced by id 
+
+            Department department = await db.Departments.SqlQuery(query, id).SingleOrDefaultAsync();
+
             if (department == null)
             {
                 return HttpNotFound();
