@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Web;
 
 namespace ContosoUniversity.Models
 {
@@ -27,7 +23,7 @@ namespace ContosoUniversity.Models
         {
             get
             {
-                return LastName + " " FirstMidName;
+                return LastName + " " + FirstMidName;
             }
         }
 
