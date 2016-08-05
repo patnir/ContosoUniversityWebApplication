@@ -6,13 +6,13 @@
 
 <h2>@ViewBag.Title</h2>
 
-<table>
+<table class="table">
     <tr>
         <th>
             Enrollment Date
         </th>
         <th>
-            Students
+            Total Students
         </th>
     </tr>
 
@@ -24,6 +24,35 @@
             </td>
             <td>
                 @items.StudentCount
+            </td>
+        </tr>
+    }
+
+</table>
+
+<br /><br />
+
+<h2>Instructor Statistics</h2>
+
+<table class="table">
+
+    <tr>
+        <th>
+            Hire Date
+        </th>
+        <th>
+            Total Instructors
+        </th>
+    </tr>
+
+    @foreach (var item in ViewBag.InstructorData)
+    {
+        <tr>
+            <td>
+                @item.HireDateString
+            </td>
+            <td>
+                @item.InstructorCount
             </td>
         </tr>
     }
