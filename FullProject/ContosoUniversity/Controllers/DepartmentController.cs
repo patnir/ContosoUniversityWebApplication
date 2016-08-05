@@ -201,8 +201,21 @@ namespace ContosoUniversity.Controllers
         {
             try
             {
-                db.Entry(Department).State = EntityState;
+                db.Entry(department).State = EntityState.Deleted;
                 await db.SaveChangesAsync();
+                return RedirectToAction("Index");
+            }
+
+            catch (DbUpdateConcurrencyException)
+            {
+                return RedirectToAction("Delete", new { concurrencyError = true, id = department.DepartmentID });
+            }
+
+            catch (DataException)
+            {
+                ModelState.AddModelError(string.Empty, "Unable to Delete. Try again, and if the problem persists contact your local system administrator");
+
+                return View(department);
             }
         }
 
